@@ -1,6 +1,6 @@
 """Tree-walking interpreter with lexical scoping and first-class closures."""
 
-from . import ast
+from . import syntax as ast
 from .errors import MiniRuntimeError
 
 

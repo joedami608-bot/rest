@@ -13,7 +13,7 @@ Grammar sketch (semicolons are optional statement separators):
     expr      := pratt expression, see PRECEDENCE below
 """
 
-from . import ast
+from . import syntax as ast
 from .errors import MiniSyntaxError
 from .lexer import tokenize
 
