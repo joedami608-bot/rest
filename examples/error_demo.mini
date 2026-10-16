@@ -1,0 +1,7 @@
+# Shows the error report: message, source line, caret and call trace.
+fn average(xs) {
+  reduce(xs, fn(a, b) -> a + b, 0) / len(xs)
+}
+fn report(groups) -> map(groups, average)
+
+print(report([[1, 2, 3], [4, 5], []]))

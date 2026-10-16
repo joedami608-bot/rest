@@ -1,0 +1,80 @@
+# Mini language showcase — run with:  python -m mini examples/showcase.mini
+
+# ---- recursion & implicit return --------------------------------------
+fn fib(n) {
+  if n < 2 { n } else { fib(n - 1) + fib(n - 2) }
+}
+print("fib(0..15):", map(0..15, fib))
+
+# ---- closures capture and mutate their environment --------------------
+fn make_counter() {
+  let count = 0
+  fn() { count = count + 1 }
+}
+let tick = make_counter()
+tick(); tick()
+print("counter after 3 ticks:", tick())
+
+# ---- higher-order functions & the pipe operator ------------------------
+let squares_of_odds = 1..20
+  |> filter(fn(x) -> x % 2 == 1)
+  |> map(fn(x) -> x * x)
+print("squares of odds:", squares_of_odds)
+print("their sum:", reduce(squares_of_odds, fn(a, b) -> a + b, 0))
+
+# ---- quicksort, written in Mini itself ---------------------------------
+fn quicksort(xs) {
+  if len(xs) <= 1 { return xs }
+  let pivot = xs[0]
+  let rest = []
+  for i in 1..len(xs) { push(rest, xs[i]) }
+  quicksort(filter(rest, fn(x) -> x < pivot)) + [pivot] + quicksort(filter(rest, fn(x) -> x >= pivot))
+}
+print("quicksort:", quicksort([38, 27, 43, 3, 9, 82, 10, 3]))
+
+# ---- maps, dot access, sort with key -----------------------------------
+let people = [
+  {name: "Ada", born: 1815},
+  {name: "Grace", born: 1906},
+  {name: "Alan", born: 1912},
+  {name: "Linus", born: 1969},
+]
+let by_age = sort(people, fn(p) -> -p.born)
+print("youngest first:", join(map(by_age, fn(p) -> p.name), " > "))
+
+# ---- word frequency -----------------------------------------------------
+let text = "the quick brown fox jumps over the lazy dog the end"
+let freq = {}
+for w in split(text, " ") {
+  freq[w] = if has(freq, w) { freq[w] + 1 } else { 1 }
+}
+print("freq of 'the':", freq.the)
+
+# ---- sieve of Eratosthenes with while / break / continue ---------------
+fn primes_below(n) {
+  let is_prime = [true] * n
+  let out = []
+  let i = 2
+  while i < n {
+    if not is_prime[i] { i = i + 1; continue }
+    push(out, i)
+    let j = i * i
+    while j < n { is_prime[j] = false; j = j + i }
+    i = i + 1
+  }
+  out
+}
+print("primes < 50:", primes_below(50))
+
+# ---- memoisation via closure over a map --------------------------------
+fn memoize(f) {
+  let cache = {}
+  fn(n) {
+    if not has(cache, n) { cache[n] = f(n) }
+    cache[n]
+  }
+}
+let slow_paths = fn(n) -> if n <= 1 { 1 } else { fast_paths(n - 1) + fast_paths(n - 2) }
+let fast_paths = memoize(slow_paths)
+let t0 = clock()
+print("fib-like(90) memoized:", fast_paths(90), "in", int((clock() - t0) * 1000), "ms")
